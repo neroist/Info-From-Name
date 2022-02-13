@@ -26,11 +26,11 @@ from PySide6.QtWidgets import (
 )
 
 from data import *  # getAge and getGender
+import resources
 
 
 with open("codes.json") as codes:
     countryCodes = sorted(json.load(codes))
-    del codes
     
 
 class ApplicationWindow(QMainWindow):
@@ -38,7 +38,7 @@ class ApplicationWindow(QMainWindow):
         super().__init__()
         
         self.setWindowTitle(self.tr(u"Age and Gender From Name"))
-        self.setWindowIcon(QIcon("winico.png"))
+        self.setWindowIcon(QIcon("://winico.png"))
         self.resize(500, 445)
         
         self.centralwidget = QWidget(self)
