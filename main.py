@@ -1,16 +1,11 @@
 import json
-import sys
-import ctypes
 
 from PySide6.QtCore import (
-    QMetaObject,
-    QLocale,
     QRect,
     Slot,
     Qt
 )
 from PySide6.QtGui import (
-    QPixmap,
     QFont,
     QIcon
 )
@@ -25,13 +20,13 @@ from PySide6.QtWidgets import (
     QLabel
 )
 
-from data import *  # getAge and getGender
+from data import *  # getAge, getGender, and getNationality
 import resources
 
 
 with open("codes.json") as codes:
     countryCodes = sorted(json.load(codes))
-    
+
 
 class ApplicationWindow(QMainWindow):
     def __init__(self):
@@ -39,7 +34,7 @@ class ApplicationWindow(QMainWindow):
         
         self.setWindowTitle(self.tr(u"Age and Gender From Name"))
         self.setWindowIcon(QIcon("://winico.png"))
-        self.setFixedSize(500, 445)
+        self.setFixedSize(500, 450)
         
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -68,11 +63,11 @@ class ApplicationWindow(QMainWindow):
         self.countryComboBox.addItems(countryCodes)
         self.countryComboBox.setObjectName(u"countryComboBox")
         self.countryComboBox.setGeometry(QRect(218, 170, 61, 22))
-        self.countryComboBox.setCurrentText(QLocale.countryToCode(QLocale().territory()))
+        self.countryComboBox.setCurrentText(self.locale().countryToCode(self.locale().territory()))
         
         self.verticalLayoutWidget = QWidget(self.centralwidget)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(160, 210, 181, 131))
+        self.verticalLayoutWidget.setGeometry(QRect(160, 210, 250, 131))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -80,18 +75,15 @@ class ApplicationWindow(QMainWindow):
         self.ageLabel = QLabel(self.tr(u"Age: "), self.verticalLayoutWidget)
         self.ageLabel.setObjectName(u"ageLabel")
         self.ageLabel.setFont(QFont('Segoe UI', 11))
-        self.ageLabel.setIndent(25)
         self.verticalLayout.addWidget(self.ageLabel)
 
         self.genderLabel = QLabel(self.tr(u"Gender: "), self.verticalLayoutWidget)
         self.genderLabel.setObjectName(u"genderLabel")
         self.genderLabel.setFont(QFont('Segoe UI', 11))
-        self.genderLabel.setIndent(25)
         self.verticalLayout.addWidget(self.genderLabel)
 
         self.countryLabel = QLabel(self.tr(u"Nationality: "), self.verticalLayoutWidget)
         self.countryLabel.setObjectName(u"countryLabel")
-        self.countryLabel.setIndent(25)
         self.countryLabel.setFont(QFont('Segoe UI', 11))
         self.verticalLayout.addWidget(self.countryLabel)
         self.countryLabel.hide()
@@ -116,12 +108,14 @@ class ApplicationWindow(QMainWindow):
         )
         
         if self.countryComboBox.currentText() == "":
-            country = QLocale.countryToString(QLocale.codeToCountry(getNationality(curr_name)))
+            country = self.locale().countryToString(self.locale().codeToCountry(getNationality(curr_name)))
             
             if country == "Default":
                 country = "Country Unknown"
                 
-            self.countryLabel.setText(f"Nationality: {country}")
+            self.countryLabel.setText(
+                f"Nationality: {'Country Unknown' if country == 'Default' else country}"
+            )
             
             self.countryLabel.show()
         else:
@@ -129,10 +123,13 @@ class ApplicationWindow(QMainWindow):
         
 
 if __name__ == '__main__':
-    app = QApplication(); app.setQuitOnLastWindowClosed(True)
+    import sys
+    import ctypes
+    
+    app = QApplication()
+    app.setQuitOnLastWindowClosed(True)
     window = ApplicationWindow()
     
-    aumid = u'Alice.ageAndGenderFromFName'
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(aumid)
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("alice.InfoFromName")
     
     sys.exit(app.exec())
